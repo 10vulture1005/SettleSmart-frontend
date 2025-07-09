@@ -52,7 +52,7 @@ export default function HomeHero() {
     axios.defaults.withCredentials = true; // ✅ required for cookies
 
  const fetchCurrentUser = async () => {
-  const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/auth/me`);
+  const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/auth/me`);
   return res.data;
   };
   useEffect(() => {

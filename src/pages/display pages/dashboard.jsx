@@ -8,7 +8,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_BASE_URL}/dashboard/data`, { 
+        const res = await fetch(`${import.meta.env.VITE_BASE_URI}/dashboard/data`, { 
           credentials: 'include' 
         });
         const data = await res.json();

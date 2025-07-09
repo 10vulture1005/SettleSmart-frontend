@@ -85,7 +85,7 @@ const LoginPage = () => {
       //  API call
         try {
         const res = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/auth/login`,
+          `${import.meta.env.VITE_BASE_URI}/auth/login`,
           data
         );
         console.log(`✅ Login success! Welcome, ${res.data.name}`);

@@ -22,7 +22,7 @@ export default function StepParticipants({ formData, setFormData }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
 
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL}`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
 
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,

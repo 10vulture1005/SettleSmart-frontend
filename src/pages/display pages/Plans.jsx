@@ -24,7 +24,7 @@ import PlanModals from "./plan modal/planmod";
 import Settlement from "./settlement";
 
 // API Configuration
-const API_BASE_URL = `${import.meta.env.VITE_BASE_URL}`;
+const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
 
 // Create axios instance with default config
 const apiClient = axios.create({

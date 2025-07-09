@@ -25,7 +25,7 @@ export default function StepActivities({ formData, setFormData }) {
     // Fetch current user data (e.g., from API or context)
     const fetchCurrentUser = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/data`,{withCredentials: true});
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URI}/user/data`,{withCredentials: true});
         setCurrentuser(response.data);
       } catch (error) {
         console.error("Error fetching current user:", error);

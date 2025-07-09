@@ -23,7 +23,7 @@ export default function FriendsPage(friendRequests,setFriendRequests,setHasNewRe
     
   };
   // Base API URL - adjust this to match your backend
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL}`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,

@@ -1,0 +1,7 @@
+html body{
+    background-color: #0B0A0E;
+    padding: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin: 0;
+}

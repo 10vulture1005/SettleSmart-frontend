@@ -28,9 +28,12 @@ const SignupPage = () => {
 
   const checkUsernameAvailability = async (username) => {
     try {
+      console.log(`${import.meta.env.VITE_BASE_URI}/auth/signup/check`);
+
       const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/auth/signup/check`, {
         username, // This now matches the backend expectation
       });
+      
       return res.data.message === "Username Looks Good";
     } catch (err) {
       console.error("Username check error:", err);

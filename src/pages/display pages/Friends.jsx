@@ -17,7 +17,7 @@ export default function FriendsPage({ friendRequests, setFriendRequests, setHasN
   };
 
   // Base API URL - adjust this to match your backend
-  const API_BASE_URL = `${VITE_BASE_URI}`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
 
   // Helper function for API calls
   const apiCall = async (url, options = {}) => {

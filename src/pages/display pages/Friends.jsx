@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, UserPlus, Check, X, Users, Clock, Send } from 'lucide-react';
+import { Search, UserPlus, Check, X, Users, Clock, Send, MessageCircle } from 'lucide-react';
 import _ from 'lodash';
-import PlanModal from './PlanModal'; // Adjust path as needed
-import axios from 'axios';
 
-
-export default function FriendsPage(friendRequests,setFriendRequests,setHasNewRequests ) {
+export default function FriendsPage({ friendRequests, setFriendRequests, setHasNewRequests }) {
   const [activeTab, setActiveTab] = useState('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -15,38 +12,37 @@ export default function FriendsPage(friendRequests,setFriendRequests,setHasNewRe
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-
-
-  const handleMessage = ()=>{
-
-    console.log();
-    
+  const handleMessage = () => {
+    console.log('Message clicked');
   };
+
   // Base API URL - adjust this to match your backend
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
-const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  const API_BASE_URL = `${VITE_BASE_URI}`;
 
   // Helper function for API calls
-const apiCall = async (url, options = {}) => {
-  const method = options.method || 'GET';
-  const body = options.body ? JSON.parse(options.body) : undefined;
+  const apiCall = async (url, options = {}) => {
+    try {
+      const response = await fetch(url, {
+        method: options.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
+        credentials: 'include',
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
 
-  const config = {
-    url,
-    method,
-    data: body,
-    headers: options.headers || {},
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('API call error:', err);
+      throw err;
+    }
   };
-
-  const res = await axiosInstance(config);
-  return res.data;
-};
 
   // Fetch pending requests
   const fetchPendingRequests = async () => {
@@ -117,9 +113,9 @@ const apiCall = async (url, options = {}) => {
     try {
       await apiCall(`${API_BASE_URL}/friend/requests`, {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           receiverId: user.id
-        })
+        }
       });
       
       // Remove user from search results
@@ -130,8 +126,8 @@ const apiCall = async (url, options = {}) => {
       
       setError('');
     } catch (err) {
-      console.error('Error sending friend request:', err.response.data.message);
-      setError(err.response.data.message);
+      console.error('Error sending friend request:', err);
+      setError(err.message || 'Failed to send friend request');
     }
   };
 
@@ -140,9 +136,9 @@ const apiCall = async (url, options = {}) => {
     try {
       await apiCall(`${API_BASE_URL}/friend/accept`, {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           senderId: request.id
-        })
+        }
       });
       
       // Refresh all lists
@@ -163,9 +159,9 @@ const apiCall = async (url, options = {}) => {
     try {
       await apiCall(`${API_BASE_URL}/friend/decline`, {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           senderId: senderId
-        })
+        }
       });
       
       // Refresh pending requests
@@ -183,9 +179,9 @@ const apiCall = async (url, options = {}) => {
     try {
       await apiCall(`${API_BASE_URL}/friend/cancel`, {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           receiverId: requestId
-        })
+        }
       });
       
       // Refresh sent requests
@@ -205,7 +201,6 @@ const apiCall = async (url, options = {}) => {
     fetchFriends();
   }, []);
 
-  // Helper function to get status color
   const getStatusColor = (status) => {
     switch (status) {
       case 'online': return 'bg-emerald-400';
@@ -215,16 +210,15 @@ const apiCall = async (url, options = {}) => {
     }
   };
 
-  // Helper function to get user avatar initials
   const getInitials = (name) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ backgroundColor: '#161A1D' }}>
+    <div className="min-h-screen bg-[#161A1D]">
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-4 bg-red-600/20 border border-red-600 text-red-400 rounded-lg">
+        <div className="mx-4 mt-4 p-3 bg-red-600/20 border border-red-600 text-red-400 rounded-lg text-sm">
           {error}
           <button 
             onClick={() => setError('')}
@@ -236,10 +230,10 @@ const apiCall = async (url, options = {}) => {
       )}
 
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">Friends</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">Friends</h1>
             <p className="text-sm text-slate-400 mt-1">
               Manage your connections and friend requests
             </p>
@@ -254,8 +248,8 @@ const apiCall = async (url, options = {}) => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="flex space-x-1 bg-[#384148] p-1 rounded-lg border border-[#384148]">
+      <div className="px-4 sm:px-6 lg:px-8 mb-6">
+        <div className="grid grid-cols-4 gap-1 bg-[#384148] p-1 rounded-lg border border-[#384148]">
           {[
             { id: 'search', label: 'Search', icon: Search },
             { id: 'requests', label: 'Requests', icon: Clock, count: pendingRequests.length },
@@ -265,169 +259,174 @@ const apiCall = async (url, options = {}) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all flex-1 sm:flex-none ${
+              className={`flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-1 sm:space-y-0 sm:space-x-2 px-2 py-3 sm:py-2 rounded-md transition-all min-h-[60px] sm:min-h-0 ${
                 activeTab === tab.id
                   ? 'bg-[#2d3339] text-slate-100 shadow-sm'
                   : 'text-slate-400 hover:text-slate-300 hover:bg-slate-750'
               }`}
             >
-              <tab.icon className="w-4 h-4" />
-              <span className="text-sm font-medium">{tab.label}</span>
-              {tab.count > 0 && (
-                <span className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-full">
-                  {tab.count}
-                </span>
-              )}
+              <div className="flex items-center space-x-1">
+                <tab.icon className="w-4 h-4" />
+                {tab.count > 0 && (
+                  <span className="bg-emerald-500 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                    {tab.count}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs sm:text-sm font-medium text-center sm:text-left">{tab.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Search Tab */}
-      {activeTab === 'search' && (
-        <div className="space-y-6">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search friends by username"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full pl-10 pr-4 py-3 bg-[#161A1D] border border-slate-700 rounded-lg text-slate-100 placeholder-[#384148] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Search Results */}
+      {/* Content Container */}
+      <div className="px-4 sm:px-6 lg:px-8 pb-6">
+        {/* Search Tab */}
+        {activeTab === 'search' && (
           <div className="space-y-4">
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400 mx-auto mb-4"></div>
-                <p className="text-slate-400">Searching...</p>
-              </div>
-            ) : searchResults.length > 0 ? (
-              searchResults.map(user => (
-                <div key={user.id} className="bg-slate-800 rounded-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                          <span className="text-slate-300 font-semibold">
-                            {getInitials(user.name || user.username)}
-                          </span>
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search friends by username"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full pl-10 pr-4 py-3 bg-[#2d3339] border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-base"
+              />
+            </div>
+
+            {/* Search Results */}
+            <div className="space-y-3">
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+                  <p className="text-slate-400">Searching...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map(user => (
+                  <div key={user.id} className="bg-[#2d3339] rounded-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
+                            <span className="text-slate-300 font-semibold text-sm">
+                              {getInitials(user.name || user.username)}
+                            </span>
+                          </div>
+                          {user.status && (
+                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#2d3339] ${getStatusColor(user.status)}`}></div>
+                          )}
                         </div>
-                        {user.status && (
-                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-800 ${getStatusColor(user.status)}`}></div>
-                        )}
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-slate-100 text-sm truncate">{user.name || user.username}</h3>
+                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-100">{user.name || user.username}</h3>
-                        <p className="text-sm text-slate-400">{user.email}</p>
+                      <button
+                        onClick={() => handleSendRequest(user)}
+                        className="flex items-center space-x-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors ml-3 flex-shrink-0"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        <span className="hidden sm:inline text-sm">Add</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : searchQuery.trim() ? (
+                <div className="text-center py-8 text-slate-400">
+                  <Search className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                  <p>No users found matching "{searchQuery}"</p>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-400">
+                  <Search className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                  <p>Start typing to search for friends</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Requests Tab */}
+        {activeTab === 'requests' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-100">
+                Pending Requests ({pendingRequests.length})
+              </h2>
+            </div>
+            {pendingRequests.length > 0 ? (
+              pendingRequests.map(request => (
+                <div key={request.id} className="bg-[#2d3339] rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
+                        <span className="text-slate-300 font-semibold text-sm">
+                          {getInitials(request.name || request.username)}
+                        </span>
                       </div>
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-100 text-sm truncate">{request.name || request.username}</h3>
+                      <p className="text-xs text-slate-400 truncate">{request.email}</p>
+                      <p className="text-xs text-slate-500 mt-1">{request.timestamp || request.createdAt}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-3">
                     <button
-                      onClick={() => handleSendRequest(user)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                      onClick={() => handleAcceptRequest(request)}
+                      className="flex items-center justify-center space-x-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex-1 sm:flex-none"
                     >
-                      <UserPlus className="w-4 h-4" />
-                      <span className="hidden sm:inline">Add Friend</span>
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm">Accept</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeclineRequest(request.id)}
+                      className="flex items-center justify-center space-x-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-1 sm:flex-none"
+                    >
+                      <X className="w-4 h-4" />
+                      <span className="text-sm">Decline</span>
                     </button>
                   </div>
                 </div>
               ))
-            ) : searchQuery.trim() ? (
-              <div className="text-center py-8 text-slate-400">
-                <Search className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-                <p>No users found matching "{searchQuery}"</p>
-              </div>
             ) : (
               <div className="text-center py-8 text-slate-400">
-                <Search className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-                <p>Start typing to search for friends</p>
+                <Clock className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                <p>No pending friend requests</p>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Requests Tab */}
-      {activeTab === 'requests' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-100">
-              Pending Requests ({pendingRequests.length})
-            </h2>
-          </div>
-          {pendingRequests.length > 0 ? (
-            pendingRequests.map(request => (
-              <div key={request.id} className="bg-[#161A1D] rounded-lg p-4 border border-[#2d3339]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                      <span className="text-slate-300 font-semibold">
-                        {getInitials(request.name || request.username)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-100">{request.name || request.username}</h3>
-                      <p className="text-sm text-slate-400">{request.email}</p>
-                      <p className="text-xs text-slate-500">{request.timestamp || request.createdAt}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleAcceptRequest(request)}
-                      className="flex items-center space-x-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                      <span className="hidden sm:inline">Accept</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeclineRequest(request.id)}
-                      className="flex items-center space-x-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                      <span className="hidden sm:inline">Decline</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Clock className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-              <p>No pending friend requests</p>
+        {/* Sent Requests Tab */}
+        {activeTab === 'sent' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-100">
+                Sent Requests ({sentRequests.length})
+              </h2>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Sent Requests Tab */}
-      {activeTab === 'sent' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-100">
-              Sent Requests ({sentRequests.length})
-            </h2>
-          </div>
-          {sentRequests.length > 0 ? (
-            sentRequests.map(request => (
-              <div key={request.id} className="bg-[#161A1D] rounded-lg p-4 border border-[#2d3339]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                      <span className="text-slate-300 font-semibold">
-                        {getInitials(request.name || request.username)}
-                      </span>
+            {sentRequests.length > 0 ? (
+              sentRequests.map(request => (
+                <div key={request.id} className="bg-[#2d3339] rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
+                        <span className="text-slate-300 font-semibold text-sm">
+                          {getInitials(request.name || request.username)}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-100">{request.name || request.username}</h3>
-                      <p className="text-sm text-slate-400">{request.email}</p>
-                      <p className="text-xs text-slate-500">Sent {request.timestamp || request.createdAt}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-100 text-sm truncate">{request.name || request.username}</h3>
+                      <p className="text-xs text-slate-400 truncate">{request.email}</p>
+                      <p className="text-xs text-slate-500 mt-1">Sent {request.timestamp || request.createdAt}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm">
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs">
                       Pending
                     </span>
                     <button
@@ -435,72 +434,73 @@ const apiCall = async (url, options = {}) => {
                       className="flex items-center space-x-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                     >
                       <X className="w-4 h-4" />
-                      <span className="hidden sm:inline">Cancel</span>
+                      <span className="text-sm">Cancel</span>
                     </button>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-slate-400">
+                <Send className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                <p>No sent friend requests</p>
               </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Send className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-              <p>No sent friend requests</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Friends Tab */}
-      {activeTab === 'friends' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-100">
-              Friends ({friends.length})
-            </h2>
+            )}
           </div>
-          {friends.length > 0 ? (
-            friends.map(friend => (
-              <div key={friend.id} className="bg-[#161A1D] rounded-lg p-4 border border-[#2d3339]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
+        )}
+
+        {/* Friends Tab */}
+        {activeTab === 'friends' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-100">
+                Friends ({friends.length})
+              </h2>
+            </div>
+            {friends.length > 0 ? (
+              friends.map(friend => (
+                <div key={friend.id} className="bg-[#2d3339] rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-start space-x-3">
+                    <div className="relative flex-shrink-0">
                       <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                        <span className="text-slate-300 font-semibold">
+                        <span className="text-slate-300 font-semibold text-sm">
                           {getInitials(friend.name || friend.username)}
                         </span>
                       </div>
                       {friend.status && (
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-800 ${getStatusColor(friend.status)}`}></div>
+                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#2d3339] ${getStatusColor(friend.status)}`}></div>
                       )}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-100">{friend.name || friend.username}</h3>
-                      <p className="text-sm text-slate-400">{friend.email}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-100 text-sm truncate">{friend.name || friend.username}</h3>
+                      <p className="text-xs text-slate-400 truncate">{friend.email}</p>
                       {friend.status && (
-                        <p className="text-xs text-slate-500 capitalize">
+                        <p className="text-xs text-slate-500 capitalize mt-1">
                           {friend.status} · Last seen {friend.lastSeen || 'recently'}
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors" onClick={handleMessage}>
-                      <span className="hidden sm:inline">Message</span>
-                      <span className="sm:hidden">💬</span>
+                  <div className="mt-3">
+                    <button 
+                      className="w-full sm:w-auto px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors flex items-center justify-center space-x-2" 
+                      onClick={handleMessage}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="text-sm">Message</span>
                     </button>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-slate-400">
+                <Users className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+                <p>No friends yet</p>
+                <p className="text-sm mt-1">Start by searching for people to connect with</p>
               </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Users className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-              <p>No friends yet</p>
-              <p className="text-sm">Start by searching for people to connect with</p>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

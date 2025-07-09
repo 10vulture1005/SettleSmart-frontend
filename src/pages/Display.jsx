@@ -30,14 +30,14 @@ const Display = () => {
   };
 
   const handleSignout = async() => {
-    await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, { withCredentials: true });
+    await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/logout`, {}, { withCredentials: true });
     navigate('/');
   }
 
   // Function to fetch friend requests
   const fetchFriendRequests = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/friend/requests/sent`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/friend/requests/sent`, { withCredentials: true });
       const newRequests = res.data;
       
       // Check if there are new requests compared to the current state
@@ -54,7 +54,7 @@ const Display = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/user/data`, { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/data`, { withCredentials: true });
         setUser(res.data);
       } catch (err) {
         console.log(err);

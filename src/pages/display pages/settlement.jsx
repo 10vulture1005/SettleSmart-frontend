@@ -4,7 +4,7 @@ import axios from 'axios'
 
 // Create axios instance for settlement API
 const settlementApiClient = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}`,
+  baseURL: `${import.meta.env.VITE_BASE_URL}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

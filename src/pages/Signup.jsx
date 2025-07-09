@@ -28,7 +28,7 @@ const SignupPage = () => {
 
   const checkUsernameAvailability = async (username) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup/check`, {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/signup/check`, {
         username, // This now matches the backend expectation
       });
       return res.data.message === "Username Looks Good";
@@ -244,7 +244,7 @@ const SignupPage = () => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/signup`,
+        `${import.meta.env.VITE_BASE_URL}/auth/signup`,
         data
       );
       console.log(`✅ Signup success! Welcome, ${res.data.name}`);

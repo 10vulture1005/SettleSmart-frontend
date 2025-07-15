@@ -109,31 +109,36 @@ export default function Settlement({ plandata }) {
   };
 
   return (
-    <div className=" absolute right-0 mt-1 w-72 bg-slate-700 border border-slate-600 rounded-lg shadow-lg z-20">
-      <div className="p-4">
-        <div className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+    <div className="absolute right-0 mt-1 w-72 max-w-sm bg-slate-700 border border-slate-600 rounded-lg shadow-lg z-20 max-h-96 flex flex-col">
+      {/* Header - Fixed */}
+      <div className="p-4 border-b border-slate-600 flex-shrink-0">
+        <div className="text-sm font-semibold text-slate-200 flex items-center gap-2">
           ₹ Settlement Summary
         </div>
-        
+      </div>
+
+      {/* Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto p-4">
         {settlements.length === 0 ? (
           <div className="text-center py-4 text-slate-400">
             No settlements required
           </div>
         ) : (
           <>
+            {/* Original settlements */}
             <div className="space-y-3 mb-4">
               {settlements.map(({ receiver, debts }) => (
                 <div key={receiver} className="bg-slate-800/50 rounded-lg p-3">
                   <div className="space-y-1">
                     {debts.map(([debtor, amount]) => (
                       <div key={debtor} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-300">{debtor}</span>
-                          <ArrowRight size={12} className="text-slate-500" />
-                          <span className="text-slate-300">{receiver}</span>
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="text-slate-300 truncate">{debtor}</span>
+                          <ArrowRight size={12} className="text-slate-500 flex-shrink-0" />
+                          <span className="text-slate-300 truncate">{receiver}</span>
                         </div>
-                        <span className="font-semibold text-emerald-400">
-₹{amount.toFixed(2)}
+                        <span className="font-semibold text-emerald-400 flex-shrink-0 ml-2">
+                          ₹{amount.toFixed(2)}
                         </span>
                       </div>
                     ))}
@@ -141,8 +146,6 @@ export default function Settlement({ plandata }) {
                 </div>
               ))}
             </div>
-
-          
 
             {/* Display Settled Data */}
             {settledData && settledData.length > 0 && (
@@ -153,12 +156,12 @@ export default function Settlement({ plandata }) {
                 <div className="space-y-1">
                   {settledData.map((settlement, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-300">{settlement[0]}</span>
-                        <ArrowRight size={12} className="text-slate-500" />
-                        <span className="text-slate-300">{settlement[1]}</span>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="text-slate-300 truncate">{settlement[0]}</span>
+                        <ArrowRight size={12} className="text-slate-500 flex-shrink-0" />
+                        <span className="text-slate-300 truncate">{settlement[1]}</span>
                       </div>
-                      <span className="font-semibold text-blue-400">
+                      <span className="font-semibold text-blue-400 flex-shrink-0 ml-2">
                         ₹{settlement[2].toFixed(2)}
                       </span>
                     </div>
@@ -167,31 +170,54 @@ export default function Settlement({ plandata }) {
               </div>
             )}
 
-            {/* Send Settlement Button */}
-            <button
-              onClick={handleSendSettlement}
-              disabled={isSubmitting}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                isSubmitting
-                  ? 'bg-slate-600 cursor-not-allowed'
-                  : 'bg-emerald-600 hover:bg-emerald-700'
-              } text-white text-sm font-medium`}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send size={16} />
-                  Send Settlement
-                </>
-              )}
-            </button>
+            {/* Status Messages */}
+            {submitStatus === 'success' && (
+              <div className="mb-3 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                <div className="flex items-center gap-2 text-green-400 text-sm">
+                  <CheckCircle size={16} />
+                  Settlement sent successfully!
+                </div>
+              </div>
+            )}
+
+            {submitStatus === 'error' && (
+              <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+                <div className="flex items-center gap-2 text-red-400 text-sm">
+                  <AlertCircle size={16} />
+                  <span className="break-words">{errorMessage}</span>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
+
+      {/* Button - Fixed at bottom */}
+      {settlements.length > 0 && (
+        <div className="p-4 border-t border-slate-600 flex-shrink-0">
+          <button
+            onClick={handleSendSettlement}
+            disabled={isSubmitting}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              isSubmitting
+                ? 'bg-slate-600 cursor-not-allowed'
+                : 'bg-emerald-600 hover:bg-emerald-700'
+            } text-white text-sm font-medium`}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send size={16} />
+                Send Settlement
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

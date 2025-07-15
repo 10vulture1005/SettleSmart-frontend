@@ -39,7 +39,7 @@ const [currentUserId,setUser] = useState('me');
     if (!isOpen || !friend || currentUserId==='me') return;
 
     // Initialize socket connection
-    socketRef.current = io('http://localhost:8080/', {
+    socketRef.current = io(`${import.meta.env.VITE_BASE_URI}/`, {
       auth: {
         userId: currentUserId
       }

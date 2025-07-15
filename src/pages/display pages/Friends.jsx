@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, UserPlus, Check, X, Users, Clock, Send, MessageCircle } from 'lucide-react';
 import _ from 'lodash';
-import ChatModal from './Messages';
+import ChatModal from './Message';
 export default function FriendsPage({ friendRequests, setFriendRequests, setHasNewRequests }) {
   const [activeTab, setActiveTab] = useState('search');
   const [searchQuery, setSearchQuery] = useState('');

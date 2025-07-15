@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, UserPlus, Check, X, Users, Clock, Send, MessageCircle } from 'lucide-react';
 import _ from 'lodash';
-
+import ChatModal from './Messages';
 export default function FriendsPage({ friendRequests, setFriendRequests, setHasNewRequests }) {
   const [activeTab, setActiveTab] = useState('search');
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,11 +11,20 @@ export default function FriendsPage({ friendRequests, setFriendRequests, setHasN
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+const [chatModalOpen, setChatModalOpen] = useState(false);
+const [selectedFriend, setSelectedFriend] = useState(null);
 
-  const handleMessage = () => {
-    console.log('Message clicked');
-  };
 
+  const handleMessage = (friend) => {
+  setSelectedFriend(friend);
+  setChatModalOpen(true);
+};
+
+// 4. Add this function after handleMessage:
+const handleCloseChatModal = () => {
+  setChatModalOpen(false);
+  setSelectedFriend(null);
+};
   // Base API URL - adjust this to match your backend
   const API_BASE_URL = `${import.meta.env.VITE_BASE_URI}`;
 
@@ -483,7 +492,8 @@ export default function FriendsPage({ friendRequests, setFriendRequests, setHasN
                   <div className="mt-3">
                     <button 
                       className="w-full sm:w-auto px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors flex items-center justify-center space-x-2" 
-                      onClick={handleMessage}
+                      onClick={() => handleMessage(friend)}
+
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span className="text-sm">Message</span>
@@ -501,6 +511,11 @@ export default function FriendsPage({ friendRequests, setFriendRequests, setHasN
           </div>
         )}
       </div>
+      <ChatModal
+  isOpen={chatModalOpen}
+  onClose={handleCloseChatModal}
+  friend={selectedFriend}
+/>
     </div>
   );
 }

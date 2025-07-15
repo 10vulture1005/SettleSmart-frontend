@@ -27,7 +27,7 @@ const [currentUserId,setUser] = useState('me');
 
   // Socket.IO connection
   useEffect(() => {
-          axios.get('http://localhost:8080/user/data',{withCredentials:true})
+          axios.get(`${import.meta.env.VITE_BASE_URI}/user/data`,{withCredentials:true})
         .then((response) => {
           setUser(response.data._id);
         })

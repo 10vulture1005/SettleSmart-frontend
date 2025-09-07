@@ -6,7 +6,7 @@ import Dashboard from './display pages/dashboard';
 import Friends from './display pages/Friends';
 import Plans from './display pages/Plans';
 import ContactPage from './display pages/Contact';
-
+import OutingPlannerPage from './display pages/Planner';
 const Display = () => {
   const [activeNavItem, setActiveNavItem] = useState('Dashboard');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -27,6 +27,7 @@ const Display = () => {
     Analytics: <div style={{ color: 'white' }}>{id}</div>,
     Friends: <Friends friendRequests={friendRequests} setFriendRequests={setFriendRequests} setHasNewRequests={setHasNewRequests} />,
     'Contact me': <ContactPage/>,
+    Planer: <OutingPlannerPage/>,
   };
 
   const handleSignout = async() => {
@@ -131,6 +132,8 @@ const Display = () => {
     { name: 'Plans', href: '#' },
     { name: 'Friends', href: '#' },
     { name: 'Contact me', href: '#' },
+        { name: 'Planer', href: '#' },
+
   ];
 
   return (
